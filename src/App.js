@@ -8,54 +8,21 @@ function App() {
 
   React.useEffect(() => {
     const canvas = canvasRef.current;
-    canvas.width = 300;
-    canvas.height = 300;
-    canvas.style.width = `300px`;
-    canvas.style.height = `300px`;
+    canvas.width = 600;
+    canvas.height = 600;
+    canvas.style.width = `600px`;
+    canvas.style.height = `600px`;
       
     const context = canvas.getContext('2d');
-    context.scale(2, 2);
     // add rectangle
     context.fillStyle = 'green';
     context.fillRect(40, 40, 100, 150);
 
+    context.fillStyle = 'teal';
+    context.fillRect(340, 40, 100, 150);
+
     contextRef.current = context;
   }, []);
-
-  // skew rectangle on joystick movement
-  // x and y are values between -1 and 1
-  // 0 is the center
-  // -1 is the top or left
-  // 1 is the bottom or right
-  const handleJoystickMove = (event, data) => {
-    const { x, y } = data;
-    const context = contextRef.current;
-    context.setTransform(1, 0, 0, 1, 0, 0);
-    context.clearRect(0, 0, 300, 300);
-    context.fillStyle = 'green';
-    context.transform(1, 0, y, 1, 0, 0);
-    context.transform(0, x, 0, 1, 0, 0);
-    context.fillRect(40, 40, 100, 150);
-  };
-
-  // add event listener
-  // skew rectangle on mouse move
-  const handleMouseMove = (event) => {
-    const { clientX, clientY } = event;
-    const { top, left } = canvasRef.current.getBoundingClientRect();
-    const x = clientX - left;
-    const y = clientY - top;
-
-    // scale x and y down between -1 and 1
-    const x1 = (x - 150) / 150;
-    const y1 = (y - 150) / 150;
-
-    contextRef.current.setTransform(1, 0, 0, 1, 0, 0);
-    contextRef.current.clearRect(0, 0, 300, 300);
-    contextRef.current.transform(1, y1, x1, 1, 0, 0);
-    contextRef.current.fillStyle = 'green';
-    contextRef.current.fillRect(40, 40, 100, 150);
-  };
 
   const gameLoop = () => {
     // skew rectangle on axes change
@@ -67,13 +34,19 @@ function App() {
     const gamepad = navigator.getGamepads()[0];
     if (gamepad) {
       const { axes } = gamepad;
-      const x = axes[0];
-      const y = axes[1];
+      const lx = axes[0];
+      const ly = axes[1];
       contextRef.current.setTransform(1, 0, 0, 1, 0, 0);
-      contextRef.current.clearRect(0, 0, 300, 300);
-      contextRef.current.transform(1, y, x, 1, 0, 0);
+      contextRef.current.clearRect(0, 0, 600, 600);
+      contextRef.current.transform(1, 0, 0+(lx * 0.3), 1+(ly * 0.3), 0, 0);
       contextRef.current.fillStyle = 'green';
       contextRef.current.fillRect(40, 40, 100, 150);
+
+      const rx = axes[2];
+      const ry = axes[3];
+      contextRef.current.transform(1, 0, 0+(rx * 0.3), 1+(ry * 0.3), 0, 0);
+      contextRef.current.fillStyle = 'teal';
+      contextRef.current.fillRect(340, 40, 100, 150);
     }
 
     requestAnimationFrame(gameLoop);
